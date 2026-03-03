@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{name}} — Resume</title>
+  <link rel="stylesheet" href="template.css" />
+</head>
+<body>
+  <div class="page">
+
+    <!-- Header band -->
+    <header class="header">
+      <div class="header-inner">
+        <h1 class="name">{{name}}</h1>
+        <div class="contact">
+          {{#if email}}<span class="contact-item">{{email}}</span>{{/if}}
+          {{#if phone}}<span class="contact-item">{{phone}}</span>{{/if}}
+          {{#if location}}<span class="contact-item">{{location}}</span>{{/if}}
+          {{#if website}}<span class="contact-item">{{website}}</span>{{/if}}
+        </div>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <div class="body">
+
+      <!-- Summary -->
+      {{#if summary}}
+      <section class="section">
+        <div class="section-label">
+          <span class="label-text">Profile</span>
+        </div>
+        <div class="section-content">
+          <p class="summary">{{summary}}</p>
+        </div>
+      </section>
+      {{/if}}
+
+      <!-- Experience -->
+      {{#if experience.length}}
+      <section class="section">
+        <div class="section-label">
+          <span class="label-text">Experience</span>
+        </div>
+        <div class="section-content">
+          {{#each experience}}
+          <div class="entry">
+            <div class="entry-header">
+              <div class="entry-meta entry-meta--exp">
+                <span class="entry-title">{{title}},</span>
+                <span class="entry-company">{{company}}</span>
+              </div>
+              <span class="entry-dates">{{dates}}</span>
+            </div>
+            <ul class="bullets">
+              {{#each bullets}}
+              <li>{{this}}</li>
+              {{/each}}
+            </ul>
+          </div>
+          {{/each}}
+        </div>
+      </section>
+      {{/if}}
+
+      <!-- Education -->
+      {{#if education.length}}
+      <section class="section">
+        <div class="section-label">
+          <span class="label-text">Education</span>
+        </div>
+        <div class="section-content">
+          {{#each education}}
+          <div class="entry">
+            <div class="entry-header">
+              <div class="entry-meta">
+                <span class="entry-title">{{degree}} in {{field}}</span>
+                <span class="entry-company">{{institution}}</span>
+              </div>
+              <div class="entry-right">
+                <span class="entry-dates">{{year}}</span>
+                {{#if gpa}}<span class="entry-gpa">GPA {{gpa}}</span>{{/if}}
+              </div>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </section>
+      {{/if}}
+
+      <!-- Skills -->
+      {{#if skills.length}}
+      <section class="section">
+        <div class="section-label">
+          <span class="label-text">Skills</span>
+        </div>
+        <div class="section-content">
+          <div class="skills-grid">
+            {{#each skills}}
+            <span class="skill-tag">{{this}}</span>
+            {{/each}}
+          </div>
+        </div>
+      </section>
+      {{/if}}
+
+    </div>
+  </div>
+</body>
+</html>

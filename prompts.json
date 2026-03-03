@@ -1,0 +1,36 @@
+{
+  "keyword_extraction": {
+    "system": "You are an expert in job description analysis and keyword extraction for ATS optimization.",
+    "user_template": "Extract keywords from the following job description and categorize them.\n\nJob Description:\n{job_description}\n\nRespond with JSON in this exact format:\n{\n  \"actionVerbs\": [\"list of action verbs like 'led', 'designed', 'implemented'\"],\n  \"softSkills\": [\"list of soft skills like 'leadership', 'communication'\"],\n  \"hardSkills\": [\"list of technical/hard skills like 'Python', 'AWS', 'Machine Learning'\"]\n}\n\nRules:\n- Extract 10-20 keywords per category\n- Use base forms of verbs (e.g., 'lead' not 'leading')\n- Be specific (e.g., 'Python' not just 'programming')\n- Remove duplicates",
+    "temperature": 0.5,
+    "max_tokens": 1000
+  },
+
+  "candidate_evaluation": {
+    "system": "You are an expert career coach and recruiter with deep experience evaluating candidate fit for roles.",
+    "user_template": "Evaluate this candidate's fit for the role.\n\nJob Description:\n{job_description}\n\nCandidate Profile:\nName: {name}\nSummary: {summary}\n\nWork Experience:\n{work_experience}\n\nEducation:\n{education}\n\nSkills:\n{skills}\n\nCertifications & Achievements:\n{certifications}\n\nRespond with JSON in this exact format:\n{\n  \"strengths\": [\n    {\"title\": \"Strength name\", \"explanation\": \"Why this is a strength for this role\"},\n    ...\n  ],\n  \"weaknesses\": [\n    {\"gap\": \"Weakness or gap\", \"suggestion\": \"How to address this gap\"},\n    ...\n  ],\n  \"overallAssessment\": \"2-3 sentence summary of overall fit\",\n  \"fitScore\": 0\n}\n\nProvide 3-5 strengths and 2-4 weaknesses. Be honest but constructive. fitScore is an integer 0-100.",
+    "temperature": 0.7,
+    "max_tokens": 2000
+  },
+
+  "resume_tailoring": {
+    "system": "You are an expert resume writer specializing in ATS optimization and tailored applications.",
+    "user_template": "Generate tailored resume content for this candidate applying to this role.\n\nJob Description:\n{job_description}\n\nKeywords to Include:\nAction Verbs: {action_verbs}\nSoft Skills: {soft_skills}\nHard Skills: {hard_skills}\n\nCandidate Profile:\n{candidate_profile}\n\nCandidate Evaluation:\nStrengths: {strengths}\nWeaknesses: {weaknesses}\n\nTemplate Slots (your output must include ALL of these keys):\n{template_slots}\n\nPage Budget: This resume must fit on {page_count} page(s). Generate bullet points for ALL work experience entries from the candidate profile, but mark the most relevant ones as \"included\": true and the rest as \"included\": false. The number of \"included\": true entries must respect these limits:\n- 1 page: at most 3 included entries with exactly 2 bullets each, at most 2 education entries, at most 12 skills\n- 2 pages: at most 5 included entries with 3-4 bullets each, at most 3 education entries, at most 20 skills\nFor entries marked \"included\": false, generate 1-2 concise bullets.\n\nRespond with JSON matching EXACTLY these slot keys. For the 'experience' slot, return an array of objects with keys: company, title, dates, bullets (array of bullet points per the page budget above), included (boolean — true if this entry should appear on the resume by default). For 'education', return an array of objects with keys: institution, degree, field, year, gpa (optional). For 'skills', return an array of strings.\n\nRules:\n- Order experience entries in reverse chronological order (most recent first)\n- Incorporate keywords naturally\n- Quantify achievements where possible\n- Lead bullet points with action verbs from the provided list\n- Highlight strengths from evaluation\n- Keep bullets concise (1-2 lines each)\n- Optimize for ATS parsing\n- name, email, phone, and website must be taken exactly from the candidate profile",
+    "temperature": 0.8,
+    "max_tokens": 4500
+  },
+
+  "interview_questions": {
+    "system": "You are an expert interviewer and career coach.",
+    "user_template": "Generate practice interview questions for this candidate.\n\nJob Description:\n{job_description}\n\nCandidate Profile:\n{candidate_profile_summary}\n\nCandidate Evaluation:\nStrengths: {strengths}\nWeaknesses: {weaknesses}\n\nRespond with JSON:\n{\n  \"questions\": [\n    {\"id\": \"q1\", \"question\": \"Interview question\", \"category\": \"Behavioral|Technical|Situational|Weakness\"},\n    ...\n  ]\n}\n\nGenerate 10 questions:\n- 4 behavioral questions (past experiences using STAR method)\n- 3 technical questions (role-specific skills and tools)\n- 2 situational questions (hypothetical scenarios)\n- 1 question addressing a weakness from the evaluation\n\nMake questions specific to this role and candidate background.",
+    "temperature": 0.8,
+    "max_tokens": 1500
+  },
+
+  "response_evaluation": {
+    "system": "You are a supportive interview coach providing constructive feedback.",
+    "user_template": "Evaluate this interview response and provide coaching feedback.\n\nQuestion:\n{question}\n\nCandidate's Response:\n{response}\n\nJob Context:\n{job_description_brief}\n\nProvide feedback in this format (plain text, not JSON):\n\n✅ **What You Did Well:**\n- [Point 1]\n- [Point 2]\n\n💡 **Areas for Improvement:**\n- [Point 1]\n- [Point 2]\n\n📝 **Suggested Talking Points:**\n- [Additional point to mention]\n- [Way to strengthen answer]\n\nBe encouraging but honest. Provide specific, actionable advice.",
+    "temperature": 0.7,
+    "max_tokens": 1000
+  }
+}

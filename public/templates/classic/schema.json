@@ -1,0 +1,8 @@
+{
+  "id": "classic",
+  "name": "Classic",
+  "description": "A refined, traditional layout with serif typography — timeless and ATS-friendly.",
+  "previewImage": "templates/classic/preview.png",
+  "slots": ["name", "email", "phone", "location", "summary", "experience", "education", "skills"],
+  "contentSchemaId": "ClassicResumeContentSchema"
+}

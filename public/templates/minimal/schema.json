@@ -1,0 +1,8 @@
+{
+  "id": "minimal",
+  "name": "Minimal",
+  "description": "An understated, editorial layout with generous whitespace and elegant serif typography — quietly confident.",
+  "previewImage": "templates/minimal/preview.png",
+  "slots": ["name", "email", "phone", "location", "summary", "experience", "education", "skills"],
+  "contentSchemaId": "ClassicResumeContentSchema"
+}

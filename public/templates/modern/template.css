@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+@page {
+  size: letter;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --accent: #1a56db;
+  --accent-light: #e8f0fd;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border: #e2e8f0;
+  --header-bg: #0f172a;
+}
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.page {
+  width: 8.5in;
+  min-height: 11in;
+  background: #fff;
+}
+
+/* Header */
+.header {
+  background: var(--header-bg);
+  padding: 0.45in 0.65in;
+}
+
+.header-inner {
+  border-left: 3pt solid var(--accent);
+  padding-left: 14pt;
+}
+
+.name {
+  font-size: 24pt;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: #fff;
+  margin-bottom: 6pt;
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16pt;
+}
+
+.contact-item {
+  font-size: 8.5pt;
+  color: #94a3b8;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.01em;
+}
+
+/* Body */
+.body {
+  padding: 0.4in 0.65in;
+}
+
+/* Sections */
+.section {
+  display: flex;
+  gap: 16pt;
+  margin-bottom: 18pt;
+  padding-bottom: 18pt;
+  border-bottom: 0.5pt solid var(--border);
+}
+
+.section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.section-label {
+  flex: 0 0 68pt;
+  padding-top: 1pt;
+}
+
+.label-text {
+  font-size: 7pt;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.section-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Summary */
+.summary {
+  font-size: 9.5pt;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Entries */
+.entry {
+  margin-bottom: 11pt;
+  break-inside: avoid;
+}
+
+.entry:last-child {
+  margin-bottom: 0;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4pt;
+}
+
+.entry-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1pt;
+}
+
+.entry-meta--exp {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 4pt;
+}
+
+.entry-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1pt;
+}
+
+.entry-title {
+  font-size: 10pt;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.entry-company {
+  font-size: 9pt;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.entry-dates {
+  font-size: 8.5pt;
+  font-family: 'DM Mono', monospace;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: 8pt;
+}
+
+.entry-gpa {
+  font-size: 8pt;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+}
+
+/* Bullets */
+.bullets {
+  list-style: none;
+  padding: 0;
+  margin-top: 3pt;
+}
+
+.bullets li {
+  position: relative;
+  padding-left: 11pt;
+  font-size: 9pt;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin-bottom: 2.5pt;
+}
+
+.bullets li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6.5pt;
+  width: 4pt;
+  height: 1.5pt;
+  background: var(--accent);
+}
+
+/* Skills */
+.skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5pt;
+}
+
+.skill-tag {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 8pt;
+  font-weight: 500;
+  padding: 2.5pt 7pt;
+  border-radius: 2pt;
+  letter-spacing: 0.01em;
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{name}} — Resume</title>
+  <link rel="stylesheet" href="template.css" />
+</head>
+<body>
+  <div class="page">
+
+    <!-- Header -->
+    <header class="header">
+      <h1 class="name">{{name}}</h1>
+      <div class="contact">
+        {{#if email}}<span>{{email}}</span>{{/if}}
+        {{#if phone}}<span>{{phone}}</span>{{/if}}
+        {{#if location}}<span>{{location}}</span>{{/if}}
+        {{#if website}}<span>{{website}}</span>{{/if}}
+      </div>
+    </header>
+
+    <div class="divider"></div>
+
+    <!-- Summary -->
+    {{#if summary}}
+    <section class="section">
+      <h2 class="section-title">Professional Summary</h2>
+      <p class="summary">{{summary}}</p>
+    </section>
+    {{/if}}
+
+    <!-- Experience -->
+    {{#if experience.length}}
+    <section class="section">
+      <h2 class="section-title">Experience</h2>
+      {{#each experience}}
+      <div class="entry">
+        <div class="entry-header">
+          <div class="entry-left">
+            <span class="entry-title">{{title}}</span><span class="entry-sep">, </span><span class="entry-company">{{company}}</span>
+          </div>
+          <span class="entry-dates">{{dates}}</span>
+        </div>
+        <ul class="bullets">
+          {{#each bullets}}
+          <li>{{this}}</li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/each}}
+    </section>
+    {{/if}}
+
+    <!-- Education -->
+    {{#if education.length}}
+    <section class="section">
+      <h2 class="section-title">Education</h2>
+      {{#each education}}
+      <div class="entry">
+        <div class="entry-header">
+          <div class="entry-left entry-left--stacked">
+            <span class="entry-title">{{degree}} in {{field}}</span>
+            <span class="entry-company">{{institution}}</span>
+          </div>
+          <div class="entry-right">
+            <span class="entry-dates">{{year}}</span>
+            {{#if gpa}}<span class="entry-gpa">GPA: {{gpa}}</span>{{/if}}
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </section>
+    {{/if}}
+
+    <!-- Skills -->
+    {{#if skills.length}}
+    <section class="section">
+      <h2 class="section-title">Skills</h2>
+      <p class="skills-list">{{#each skills}}{{this}}{{#unless @last}} · {{/unless}}{{/each}}</p>
+    </section>
+    {{/if}}
+
+  </div>
+</body>
+</html>
