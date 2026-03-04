@@ -45,15 +45,24 @@ export function ResumePreview({ templateId, content, onHeightChange }: ResumePre
         doc.write(fullHtml)
         doc.close()
 
-        // Measure content height and sync the iframe element size in the
-        // same frame so scrollbars never flash during the React re-render.
-        requestAnimationFrame(() => {
+        // Wait for web fonts to load so the measurement reflects final layout
+        await iframe.contentDocument?.fonts?.ready
+
+        const measure = () => {
           if (cancelled) return
+          // Reset iframe height so scrollHeight reflects actual content,
+          // not the previous (possibly larger) iframe element height.
+          iframe.style.height = "0px"
           const h = iframe.contentDocument?.documentElement.scrollHeight ?? 1056
           iframe.style.height = `${h}px`
           setContentH(h)
           if (onHeightChange) onHeightChange(h)
-        })
+        }
+
+        // Measure in the next frame, then re-measure after a short delay
+        // to catch any late reflows from font/image loading
+        requestAnimationFrame(measure)
+        setTimeout(measure, 200)
       } catch {
         // Silently ignore render errors — user is still editing
       }

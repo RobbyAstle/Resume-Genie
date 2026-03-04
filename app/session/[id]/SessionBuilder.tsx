@@ -121,7 +121,7 @@ export function SessionBuilder({ session: initial, profiles }: SessionBuilderPro
     (initial.pageCount as 1 | 2) ?? 1
   )
   const [previewHeight, setPreviewHeight] = useState(0)
-  const previewOverflows = previewHeight > 0 && previewHeight > pageCount * 1056
+  const previewOverflows = previewHeight > 0 && previewHeight > pageCount * 1056 + 2
 
   // Interview
   const [questions, setQuestions] = useState<InterviewQuestionItem[]>(
