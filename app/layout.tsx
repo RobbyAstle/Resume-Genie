@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import Image from "next/image"
 import Link from "next/link"
-import { FileText, Home, Settings, User } from "lucide-react"
+import { Home, Settings, User } from "lucide-react"
 import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
@@ -40,7 +41,7 @@ export default function RootLayout({
           {/* Sidebar */}
           <aside className="hidden md:flex flex-col w-56 border-r bg-sidebar shrink-0">
             <div className="flex items-center gap-2 px-4 py-5 border-b">
-              <FileText className="size-5 text-primary" />
+              <Image src="/Resume Genie.PNG" alt="Resume Genie logo" width={40} height={40} className="size-10" />
               <span className="font-semibold text-sm tracking-tight">
                 Resume Genie
               </span>
@@ -61,7 +62,7 @@ export default function RootLayout({
 
           {/* Mobile top bar */}
           <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 py-3 border-b bg-background">
-            <FileText className="size-5 text-primary" />
+            <Image src="/Resume Genie.PNG" alt="Resume Genie logo" width={32} height={32} className="size-8" />
             <span className="font-semibold text-sm">Resume Genie</span>
             <nav className="flex items-center gap-4 ml-auto">
               {navLinks.map(({ href, icon: Icon, label }) => (
