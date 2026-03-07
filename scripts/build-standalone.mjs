@@ -184,7 +184,7 @@ if (targetOS === "win32") {
   }
 
 } else if (targetOS === "darwin") {
-  const chromePlatform = targetArch === "arm64" ? "mac-arm64" : "mac-x64"
+  const chromePlatform = targetArch === "arm64" ? "mac_arm" : "mac"
   exec(
     `"${browsersCli}" install chrome@${CHROME_VERSION} --platform ${chromePlatform} --install-dir "${chromeDir}"`,
   )
