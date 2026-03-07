@@ -71,7 +71,7 @@ async function rmrf(dir) {
 }
 
 async function copyDir(src, dest) {
-  await fsp.cp(src, dest, { recursive: true })
+  await fsp.cp(src, dest, { recursive: true, dereference: true })
 }
 
 function exec(cmd, opts = {}) {
