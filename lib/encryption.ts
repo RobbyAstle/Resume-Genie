@@ -1,16 +1,30 @@
 import crypto from "crypto"
-import os from "os"
+import fs from "fs"
+import path from "path"
 
 // ---------------------------------------------------------------------------
 // Key derivation
 // ---------------------------------------------------------------------------
-// Derive a 32-byte AES key from machine-specific data so the encrypted file
-// is tied to this machine. Not a replacement for a secrets manager, but
-// prevents trivial plaintext exposure if the data/ directory is copied.
+// A random 32-byte key is generated once and stored in a dotfile in the
+// user's home directory. This means the encrypted API keys in data/ cannot be
+// decrypted if the data/ folder is copied to another machine or committed
+// to version control — the key file stays with the original machine.
+
+const KEY_PATH = path.join(
+  process.env.HOME || process.env.USERPROFILE || process.cwd(),
+  ".resume-genie-key"
+)
 
 function deriveKey(): Buffer {
-  const seed = `${os.hostname()}::${os.platform()}::resume-genie`
-  return crypto.createHash("sha256").update(seed).digest()
+  try {
+    const existing = fs.readFileSync(KEY_PATH)
+    if (existing.length === 32) return existing
+  } catch {
+    // Key file doesn't exist yet — generate one below
+  }
+  const key = crypto.randomBytes(32)
+  fs.writeFileSync(KEY_PATH, key, { mode: 0o600 })
+  return key
 }
 
 // ---------------------------------------------------------------------------

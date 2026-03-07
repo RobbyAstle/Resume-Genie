@@ -39,6 +39,13 @@ const platformFlag = args.find((a) => a.startsWith("--platform="))?.split("=")[1
   ?? args[args.indexOf("--platform") + 1]
   ?? `${process.platform}-${process.arch}`
 
+const VALID_PLATFORMS = ["win32-x64", "darwin-arm64", "darwin-x64"]
+if (!VALID_PLATFORMS.includes(platformFlag)) {
+  console.error(`Invalid platform: ${platformFlag}`)
+  console.error(`Valid platforms: ${VALID_PLATFORMS.join(", ")}`)
+  process.exit(1)
+}
+
 const [targetOS, targetArch] = platformFlag.split("-")
 console.log(`\n📦 Building standalone package for ${targetOS}-${targetArch}\n`)
 
@@ -54,9 +61,31 @@ const NODE_VERSION = "20.19.0"
 // Using a known-good Chrome for Testing version
 const CHROME_VERSION = "131.0.6778.264"
 
+// Expected SHA-256 checksums for Node.js v20.19.0 binaries
+// Source: https://nodejs.org/dist/v20.19.0/SHASUMS256.txt
+const NODE_CHECKSUMS = {
+  "win32-x64": "be72284c7bc62de07d5a9fd0ae196879842c085f11f7f2b60bf8864c0c9d6a4f",
+  "darwin-arm64": "c016cd1975a264a29dc1b07c6fbe60d5df0a0c2beb4113c0450e3d998d1a0d9c",
+  "darwin-x64": "a8554af97d6491fdbdabe63d3a1cfb9571228d25a3ad9aed2df856facb131b20",
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+async function verifyChecksum(filePath, expectedHash) {
+  const { createHash } = await import("crypto")
+  const fileBuffer = await fsp.readFile(filePath)
+  const actual = createHash("sha256").update(fileBuffer).digest("hex")
+  if (actual !== expectedHash) {
+    throw new Error(
+      `Checksum mismatch for ${path.basename(filePath)}!\n` +
+      `  Expected: ${expectedHash}\n` +
+      `  Actual:   ${actual}`
+    )
+  }
+  console.log(`  ✓ Checksum verified: ${path.basename(filePath)}`)
+}
 
 async function downloadFile(url, dest) {
   console.log(`  ↓ Downloading ${url}`)
@@ -150,6 +179,7 @@ if (targetOS === "win32") {
   const nodeUrl = `https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-win-x64.zip`
   const zipPath = path.join(DIST, "node.zip")
   await downloadFile(nodeUrl, zipPath)
+  await verifyChecksum(zipPath, NODE_CHECKSUMS["win32-x64"])
 
   // Extract using PowerShell
   exec(`powershell -Command "Expand-Archive -Force '${zipPath}' '${DIST}/node-tmp'"`)
@@ -164,6 +194,7 @@ if (targetOS === "win32") {
   const nodeUrl = `https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-darwin-${targetArch}.tar.gz`
   const tarPath = path.join(DIST, "node.tar.gz")
   await downloadFile(nodeUrl, tarPath)
+  await verifyChecksum(tarPath, NODE_CHECKSUMS[`darwin-${targetArch}`])
 
   exec(`tar -xzf "${tarPath}" -C "${DIST}"`)
   const extracted = path.join(DIST, `node-v${NODE_VERSION}-darwin-${targetArch}`)
