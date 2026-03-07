@@ -152,8 +152,10 @@ const pnpmStore = path.join(ROOT, "node_modules", ".pnpm")
 for (const dep of peerDeps) {
   const destPkg = path.join(STAGE, "node_modules", dep)
   if (!fs.existsSync(destPkg)) {
-    // Find the package inside .pnpm store
-    const storeEntries = fs.readdirSync(pnpmStore).filter((d) => d.startsWith(dep + "@"))
+    // pnpm encodes scoped package names with "+" instead of "/" in store dirs
+    // e.g. "@swc/helpers" → "@swc+helpers@0.5.15"
+    const storePrefix = dep.replace("/", "+")
+    const storeEntries = fs.readdirSync(pnpmStore).filter((d) => d.startsWith(storePrefix + "@"))
     if (storeEntries.length > 0) {
       const src = path.join(pnpmStore, storeEntries[0], "node_modules", dep)
       if (fs.existsSync(src)) {
