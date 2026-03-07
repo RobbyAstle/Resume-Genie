@@ -50,7 +50,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   await fs.writeFile(outputPath, pdfBuffer)
 
   if (sessionId) {
-    await updateSession(sessionId, { pdfPath: outputPath })
+    await updateSession(sessionId, { pdfPath: filename })
   }
 
   return new NextResponse(Uint8Array.from(pdfBuffer), {

@@ -45,13 +45,13 @@ export async function callAI<T extends ZodTypeAny>(
   const schema = options?.schema
 
   if (settings.provider === "anthropic" && settings.anthropicKey) {
-    const client = new Anthropic({ apiKey: settings.anthropicKey })
+    const client = new Anthropic({ apiKey: settings.anthropicKey || process.env.ANTHROPIC_API_KEY || "" })
 
     if (schema) {
       const outputFormat = zodOutputFormat(schema)
       const msg = await client.messages.parse(
         {
-          model: "claude-opus-4-6",
+          model: "claude-sonnet-4-6",
           max_tokens: prompt.max_tokens,
           system: prompt.system,
           messages: [{ role: "user", content: userMessage }],
@@ -64,7 +64,7 @@ export async function callAI<T extends ZodTypeAny>(
 
     const msg = await client.messages.create(
       {
-        model: "claude-opus-4-6",
+        model: "claude-sonnet-4-6",
         max_tokens: prompt.max_tokens,
         system: prompt.system,
         messages: [{ role: "user", content: userMessage }],
@@ -82,7 +82,7 @@ export async function callAI<T extends ZodTypeAny>(
   if (schema) {
     const schemaName = promptKey.replace(/_/g, "-")
     const response = await client.chat.completions.parse({
-      model: "gpt-5.2",
+      model: "gpt-4o",
       max_completion_tokens: prompt.max_tokens,
       messages: [
         { role: "system", content: prompt.system },
@@ -98,7 +98,7 @@ export async function callAI<T extends ZodTypeAny>(
   }
 
   const response = await client.chat.completions.create({
-    model: "gpt-5.2",
+    model: "gpt-4o",
     max_completion_tokens: prompt.max_tokens,
     messages: [
       { role: "system", content: prompt.system },

@@ -2,6 +2,9 @@
   "name": "resume-genie",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -23,7 +26,7 @@
     "next": "16.1.6",
     "next-themes": "^0.4.6",
     "openai": "^6.25.0",
-    "puppeteer": "^24.37.5",
+    "puppeteer-core": "^24.38.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -34,6 +37,7 @@
     "zod-to-json-schema": "^3.25.1"
   },
   "devDependencies": {
+    "@puppeteer/browsers": "^2.13.0",
     "@tailwindcss/postcss": "^4",
     "@types/handlebars": "^4.1.0",
     "@types/node": "^20",

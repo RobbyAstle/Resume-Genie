@@ -1,5 +1,45 @@
-import puppeteer, { type Browser } from "puppeteer"
+import puppeteer, { type Browser } from "puppeteer-core"
 import { PDF_TIMEOUT_MS } from "./config"
+
+// ---------------------------------------------------------------------------
+// Locate Chrome/Chromium for puppeteer-core
+// ---------------------------------------------------------------------------
+
+function findChrome(): string {
+  const platform = process.platform
+  const candidates: string[] = []
+
+  if (platform === "win32") {
+    candidates.push(
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+      `${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe`,
+    )
+  } else if (platform === "darwin") {
+    candidates.push(
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    )
+  } else {
+    candidates.push(
+      "/usr/bin/google-chrome",
+      "/usr/bin/google-chrome-stable",
+      "/usr/bin/chromium-browser",
+      "/usr/bin/chromium",
+    )
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const fs = require("fs") as typeof import("fs")
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c
+  }
+
+  throw new Error(
+    "Could not find Chrome or Chromium. Set the PUPPETEER_EXECUTABLE_PATH " +
+    "environment variable to the path of your Chrome/Chromium executable."
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Browser singleton — reuse across requests for performance
@@ -11,8 +51,10 @@ async function getBrowser(): Promise<Browser> {
   if (browserInstance && browserInstance.connected) {
     return browserInstance
   }
+  const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || findChrome()
   browserInstance = await puppeteer.launch({
     headless: true,
+    executablePath,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   })
   return browserInstance

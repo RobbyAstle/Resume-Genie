@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Resume Genie
 
-## Getting Started
+AI-powered resume builder and interview preparation tool. Runs entirely on your local machine — no cloud hosting, no accounts, no data leaves your computer.
 
-First, run the development server:
+## Quick Start (for end users)
+
+1. Go to the [Releases](../../releases) page and download the ZIP for your platform:
+   - **Windows:** `ResumeGenie-win32-x64.zip`
+   - **Mac (Apple Silicon):** `ResumeGenie-darwin-arm64.zip`
+
+2. Extract the ZIP to a folder of your choice.
+
+3. Launch the app:
+   - **Windows:** Double-click `start.bat`
+   - **Mac:** Double-click `start.command` (you may need to right-click → Open the first time to bypass Gatekeeper)
+
+4. Your browser will open to `http://localhost:3000`.
+
+5. Go to **Settings** and enter your OpenAI or Anthropic API key. The key is encrypted and stored locally on your machine.
+
+That's it — no installs, no prerequisites, no terminal commands.
+
+## Developer Setup
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 18+ (20 recommended)
+- [pnpm](https://pnpm.io/) (`npm install -g pnpm`)
+
+### Install & Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+cd resume-genie
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment Variables (optional)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env.local` and edit as needed:
 
-## Learn More
+```bash
+cp .env.example .env.local
+```
 
-To learn more about Next.js, take a look at the following resources:
+Available variables:
+- `DATA_DIR` — override the data storage path (defaults to `./data`)
+- `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` — set API keys via env instead of the Settings UI
+- `PUPPETEER_EXECUTABLE_PATH` — path to Chrome/Chromium for PDF generation (auto-detected if unset)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Building a Standalone ZIP
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To produce a distributable ZIP with bundled Node.js and Chromium:
 
-## Deploy on Vercel
+```bash
+# For your current platform
+node scripts/build-standalone.mjs
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# For a specific platform
+node scripts/build-standalone.mjs --platform win32-x64
+node scripts/build-standalone.mjs --platform darwin-arm64
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The output is written to `dist/`.
+
+### Project Structure
+
+```
+app/              → Next.js App Router pages & API routes
+components/       → React components (SessionCard, ProfileForm, etc.)
+lib/              → Server-side services (storage, AI, PDF, encryption)
+schemas/          → Zod schemas for validation
+templates/        → HTML/Handlebars resume templates
+types/            → Shared TypeScript types
+data/             → Runtime data (gitignored): sessions, profiles, PDFs, API keys
+scripts/          → Build and utility scripts
+```
+
+### Useful Commands
+
+```bash
+pnpm dev          # Start dev server
+pnpm build        # Production build
+pnpm lint         # Run ESLint
+pnpm exec tsc --noEmit   # Type-check without emitting
+```
