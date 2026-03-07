@@ -147,7 +147,7 @@ if (fs.existsSync(publicSrc)) {
 
 // Patch: pnpm's symlink structure can cause Next.js standalone to miss
 // peer dependencies like styled-jsx. Copy them from the pnpm store if missing.
-const peerDeps = ["styled-jsx", "@swc/helpers"]
+const peerDeps = ["styled-jsx", "@swc/helpers", "@next/env"]
 const pnpmStore = path.join(ROOT, "node_modules", ".pnpm")
 for (const dep of peerDeps) {
   const destPkg = path.join(STAGE, "node_modules", dep)
