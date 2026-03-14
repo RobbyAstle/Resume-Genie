@@ -108,6 +108,20 @@ function exec(cmd, opts = {}) {
   execSync(cmd, { stdio: "inherit", cwd: ROOT, ...opts })
 }
 
+function getPnpmPath() {
+  try {
+    execSync("pnpm --version", { stdio: "ignore" })
+    return "pnpm"
+  } catch {
+    // Fallback for Windows where pnpm may not be on PATH
+    const fallback = path.join(process.env.APPDATA || "", "npm", "pnpm.cmd")
+    if (fs.existsSync(fallback)) return `"${fallback}"`
+    throw new Error("pnpm not found. Install it globally: npm install -g pnpm")
+  }
+}
+
+const PNPM = getPnpmPath()
+
 // ---------------------------------------------------------------------------
 // Step 1: Build Next.js
 // ---------------------------------------------------------------------------
@@ -131,9 +145,27 @@ await fsp.mkdir(STAGE, { recursive: true })
 // Copy .next/ build output
 await copyDir(nextDir, path.join(STAGE, ".next"))
 
-// Copy node_modules/ (dereference pnpm symlinks so the package is self-contained)
-console.log("  Copying node_modules (dereferencing symlinks)...")
-await copyDir(path.join(ROOT, "node_modules"), path.join(STAGE, "node_modules"))
+// Copy package.json, lockfile, and .npmrc first (needed by pnpm install)
+await fsp.copyFile(path.join(ROOT, "package.json"), path.join(STAGE, "package.json"))
+await fsp.copyFile(path.join(ROOT, "pnpm-lock.yaml"), path.join(STAGE, "pnpm-lock.yaml"))
+const npmrcSrc = path.join(ROOT, ".npmrc")
+if (fs.existsSync(npmrcSrc)) {
+  await fsp.copyFile(npmrcSrc, path.join(STAGE, ".npmrc"))
+}
+
+// Install only production dependencies (excludes TypeScript, ESLint, Tailwind, etc.)
+console.log("  Installing production dependencies...")
+exec(`${PNPM} install --prod --frozen-lockfile`, { cwd: STAGE })
+// Dereference pnpm symlinks so the package is fully self-contained
+console.log("  Dereferencing pnpm symlinks...")
+const stagedModules = path.join(STAGE, "node_modules")
+const tmpModules = path.join(STAGE, "node_modules_tmp")
+await copyDir(stagedModules, tmpModules)
+await rmrf(stagedModules)
+await fsp.rename(tmpModules, stagedModules)
+// Clean up pnpm artifacts (not needed at runtime)
+await fsp.rm(path.join(STAGE, "pnpm-lock.yaml"))
+await fsp.rm(path.join(STAGE, ".npmrc"), { force: true })
 
 // Copy public/ directory
 const publicSrc = path.join(ROOT, "public")
@@ -141,9 +173,6 @@ const publicDest = path.join(STAGE, "public")
 if (fs.existsSync(publicSrc)) {
   await copyDir(publicSrc, publicDest)
 }
-
-// Copy package.json (needed by next start)
-await fsp.copyFile(path.join(ROOT, "package.json"), path.join(STAGE, "package.json"))
 
 // Copy prompts.json (loaded at runtime by AI routes)
 await fsp.copyFile(path.join(ROOT, "prompts.json"), path.join(STAGE, "prompts.json"))
