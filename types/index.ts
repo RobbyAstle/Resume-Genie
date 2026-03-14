@@ -105,6 +105,12 @@ export interface ResumeEducationEntry {
   gpa?: string | null
 }
 
+export interface ResumeProjectEntry {
+  name: string
+  description: string
+  included: boolean
+}
+
 export type ContactField = "email" | "phone" | "location" | "website"
 
 export interface ResumeContent {
@@ -116,6 +122,7 @@ export interface ResumeContent {
   summary: string
   experience: ResumeExperienceEntry[]
   education: ResumeEducationEntry[]
+  projects?: ResumeProjectEntry[]
   skills: string[]
   hiddenFields?: ContactField[]
 }

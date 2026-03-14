@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { listSessions, createSession } from "@/lib/storage"
 import { withErrorHandling } from "@/lib/api-error"
 
+export const dynamic = "force-dynamic"
+
 export const GET = withErrorHandling(async () => {
   const sessions = await listSessions()
   return NextResponse.json(sessions)

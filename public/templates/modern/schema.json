@@ -3,6 +3,6 @@
   "name": "Modern",
   "description": "A clean, contemporary layout with a dark header band and bold accent color — striking and professional.",
   "previewImage": "templates/modern/preview.png",
-  "slots": ["name", "email", "phone", "location", "summary", "experience", "education", "skills"],
+  "slots": ["name", "email", "phone", "location", "summary", "experience", "education", "projects", "skills"],
   "contentSchemaId": "ClassicResumeContentSchema"
 }

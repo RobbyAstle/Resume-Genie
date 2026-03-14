@@ -20,6 +20,12 @@ export const ResumeEducationSchema = z.object({
   gpa: z.string().nullable().optional(),
 })
 
+export const ResumeProjectSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  included: z.boolean().default(true),
+})
+
 // ---------------------------------------------------------------------------
 // Per-template content schemas
 // All four templates share the same slot set.
@@ -36,6 +42,7 @@ export const ResumeContentSchema = z.object({
   summary: z.string().min(20),
   experience: z.array(ResumeExperienceSchema),
   education: z.array(ResumeEducationSchema),
+  projects: z.array(ResumeProjectSchema).optional().default([]),
   skills: z.array(z.string()),
   hiddenFields: z.array(ContactFieldSchema).optional().default([]),
 })
@@ -48,6 +55,7 @@ export const SignatureResumeContentSchema = ResumeContentSchema
 
 export type ResumeExperience = z.infer<typeof ResumeExperienceSchema>
 export type ResumeEducation = z.infer<typeof ResumeEducationSchema>
+export type ResumeProject = z.infer<typeof ResumeProjectSchema>
 export type ResumeContent = z.infer<typeof ResumeContentSchema>
 
 // ---------------------------------------------------------------------------

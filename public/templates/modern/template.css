@@ -202,6 +202,14 @@ body {
   background: var(--accent);
 }
 
+/* Projects */
+.project-desc {
+  font-size: 9pt;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin-top: 2pt;
+}
+
 /* Skills */
 .skills-grid {
   display: flex;

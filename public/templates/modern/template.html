@@ -89,6 +89,23 @@
       </section>
       {{/if}}
 
+      <!-- Projects & Certifications -->
+      {{#if projects.length}}
+      <section class="section">
+        <div class="section-label">
+          <span class="label-text">Projects</span>
+        </div>
+        <div class="section-content">
+          {{#each projects}}
+          <div class="entry">
+            <span class="entry-title">{{name}}</span>
+            <p class="project-desc">{{description}}</p>
+          </div>
+          {{/each}}
+        </div>
+      </section>
+      {{/if}}
+
       <!-- Skills -->
       {{#if skills.length}}
       <section class="section">

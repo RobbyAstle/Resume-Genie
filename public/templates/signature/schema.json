@@ -3,6 +3,6 @@
   "name": "Signature",
   "description": "Refined layout — warm parchment tones, copper accents, and editorial serif typography. Refined, confident, and distinctly human.",
   "previewImage": "templates/signature/preview.png",
-  "slots": ["name", "email", "phone", "location", "summary", "experience", "education", "skills"],
+  "slots": ["name", "email", "phone", "location", "summary", "experience", "education", "projects", "skills"],
   "contentSchemaId": "ClassicResumeContentSchema"
 }

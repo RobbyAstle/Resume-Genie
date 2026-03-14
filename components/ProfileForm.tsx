@@ -1,13 +1,14 @@
 "use client"
 
 import { useCallback, useRef, useState } from "react"
-import { Plus, Trash2, Tag, X, Download, Upload, Check } from "lucide-react"
+import { Plus, Trash2, Tag, Download, Upload, Check } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { TagInput } from "@/components/TagInput"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { CandidateProfile, WorkExperience, Education } from "@/types"
 
@@ -77,71 +78,6 @@ function validateWorkEntry(w: WorkExperience): Record<string, boolean> {
   }
 }
 
-
-interface TagInputProps {
-  tags: string[]
-  onChange: (tags: string[]) => void
-  placeholder?: string
-}
-
-function TagInput({ tags, onChange, placeholder }: TagInputProps) {
-  const [input, setInput] = useState("")
-
-  function addTag(value: string) {
-    const trimmed = value.trim()
-    if (trimmed && !tags.includes(trimmed)) {
-      onChange([...tags, trimmed])
-    }
-    setInput("")
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault()
-      addTag(input)
-    } else if (e.key === "Backspace" && !input && tags.length) {
-      onChange(tags.slice(0, -1))
-    }
-  }
-
-  return (
-    <div
-      className="flex flex-wrap gap-1.5 rounded-md border border-input bg-background px-3 py-2 min-h-9 cursor-text"
-      onClick={(e) => {
-        const inp = (e.currentTarget as HTMLDivElement).querySelector("input")
-        inp?.focus()
-      }}
-    >
-      {tags.map((tag) => (
-        <span
-          key={tag}
-          className="flex items-center gap-1 rounded-sm bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium"
-        >
-          {tag}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              onChange(tags.filter((t) => t !== tag))
-            }}
-          >
-            <X className="size-3" />
-          </button>
-        </span>
-      ))}
-      <input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={() => {
-          if (input.trim()) addTag(input)
-        }}
-        placeholder={tags.length === 0 ? placeholder : ""}
-        className="flex-1 min-w-24 outline-none bg-transparent text-sm placeholder:text-muted-foreground"
-      />
-    </div>
-  )
-}
 
 interface ProfileFormProps {
   initial?: CandidateProfile

@@ -176,6 +176,14 @@ body {
   color: #777;
 }
 
+/* Projects */
+.project-desc {
+  font-size: 10pt;
+  line-height: 1.5;
+  color: #222;
+  margin-top: 1pt;
+}
+
 /* Skills */
 .skills-list {
   font-size: 10pt;

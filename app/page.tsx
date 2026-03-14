@@ -1,5 +1,7 @@
 import { FileText } from "lucide-react"
 import { listSessions } from "@/lib/storage"
+
+export const dynamic = "force-dynamic"
 import { SessionCard } from "@/components/SessionCard"
 import { NewSessionButton } from "@/components/NewSessionButton"
 

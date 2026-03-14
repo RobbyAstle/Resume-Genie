@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select"
 import { TemplateGallery } from "@/components/TemplateGallery"
 import { ResumePreview } from "@/components/ResumePreview"
+import { TagInput } from "@/components/TagInput"
 import { InterviewQuestion } from "@/components/InterviewQuestion"
 import type {
   Session,
@@ -349,10 +350,16 @@ export function SessionBuilder({ session: initial, profiles }: SessionBuilderPro
   // Resume content editable fields
   // ---------------------------------------------------------------------------
 
+  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   function updateResume(patch: Partial<ResumeContent>) {
     if (!resumeContent) return
     const updated = { ...resumeContent, ...patch }
     setResumeContent(updated)
+    if (resumeTimer.current) clearTimeout(resumeTimer.current)
+    resumeTimer.current = setTimeout(
+      () => patchSession({ resumeContent: updated }),
+      400
+    )
   }
 
   /** Build a ResumeContent with excluded experience and hidden contact fields removed. */
@@ -365,6 +372,7 @@ export function SessionBuilder({ session: initial, profiles }: SessionBuilderPro
       location: hidden.includes("location") ? "" : rc.location,
       website: hidden.includes("website") ? "" : rc.website,
       experience: rc.experience.filter((e) => e.included !== false),
+      projects: (rc.projects ?? []).filter((p) => p.included !== false),
     }
   }
 
@@ -723,18 +731,7 @@ export function SessionBuilder({ session: initial, profiles }: SessionBuilderPro
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium">Skills (comma-separated)</label>
-                    <Input
-                      value={resumeContent.skills.join(", ")}
-                      onChange={(e) =>
-                        updateResume({
-                          skills: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
-                        })
-                      }
-                    />
-                  </div>
-
+                  <p className="text-xs font-semibold pt-2">Experience</p>
                   {resumeContent.experience.map((exp, idx) => (
                     <div
                       key={idx}
@@ -797,6 +794,75 @@ export function SessionBuilder({ session: initial, profiles }: SessionBuilderPro
                       />
                     </div>
                   ))}
+
+                  {(resumeContent.projects ?? []).length > 0 && (
+                    <p className="text-xs font-semibold pt-2">Projects & Certifications</p>
+                  )}
+                  {(resumeContent.projects ?? []).map((proj, idx) => (
+                    <div
+                      key={idx}
+                      className={`rounded-md border p-3 space-y-2${proj.included === false ? " opacity-50 bg-muted/30" : ""}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold text-muted-foreground">
+                          Project/Cert {idx + 1}
+                        </p>
+                        <label className="flex items-center gap-1.5 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={proj.included !== false}
+                            onChange={(e) => {
+                              const updated = [...(resumeContent.projects ?? [])]
+                              updated[idx] = { ...proj, included: e.target.checked }
+                              updateResume({ projects: updated })
+                            }}
+                            className="accent-primary"
+                          />
+                          <span className="text-xs text-muted-foreground">Include</span>
+                        </label>
+                      </div>
+                      <Input
+                        value={proj.name}
+                        placeholder="Name"
+                        onChange={(e) => {
+                          const updated = [...(resumeContent.projects ?? [])]
+                          updated[idx] = { ...proj, name: e.target.value }
+                          updateResume({ projects: updated })
+                        }}
+                      />
+                      <Textarea
+                        value={proj.description}
+                        placeholder="Description"
+                        rows={1}
+                        className="resize-none overflow-hidden"
+                        onInput={(e) => {
+                          const ta = e.currentTarget
+                          ta.style.height = "auto"
+                          ta.style.height = `${ta.scrollHeight}px`
+                        }}
+                        ref={(el) => {
+                          if (el) {
+                            el.style.height = "auto"
+                            el.style.height = `${el.scrollHeight}px`
+                          }
+                        }}
+                        onChange={(e) => {
+                          const updated = [...(resumeContent.projects ?? [])]
+                          updated[idx] = { ...proj, description: e.target.value }
+                          updateResume({ projects: updated })
+                        }}
+                      />
+                    </div>
+                  ))}
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium">Skills</label>
+                    <TagInput
+                      tags={resumeContent.skills}
+                      onChange={(tags) => updateResume({ skills: tags })}
+                      placeholder="Type a skill and press Enter…"
+                    />
+                  </div>
                 </div>
               </div>
 

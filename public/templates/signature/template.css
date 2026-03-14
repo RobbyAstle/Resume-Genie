@@ -229,6 +229,16 @@ body {
   background: var(--copper);
 }
 
+/* ── Projects ────────────────────────────────────────────── */
+
+.project-desc {
+  font-size: 9pt;
+  font-weight: 300;
+  line-height: 1.58;
+  color: var(--body-color);
+  margin-top: 2pt;
+}
+
 /* ── Skills ──────────────────────────────────────────────── */
 
 .skills-wrap {

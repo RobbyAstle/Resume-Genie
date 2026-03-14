@@ -59,7 +59,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       strengths,
       weaknesses,
       template_slots: JSON.stringify(
-        templateSlots ?? ["name", "email", "phone", "location", "website", "summary", "experience", "education", "skills"]
+        templateSlots ?? ["name", "email", "phone", "location", "website", "summary", "experience", "education", "projects", "skills"]
       ),
       page_count: String(pageCount ?? 1),
     },
