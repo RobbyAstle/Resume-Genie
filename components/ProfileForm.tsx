@@ -148,10 +148,11 @@ interface ProfileFormProps {
   profileId?: string
 }
 
-export function ProfileForm({ initial, profileId }: ProfileFormProps) {
+export function ProfileForm({ initial, profileId: initialProfileId }: ProfileFormProps) {
   const [profile, setProfile] = useState<CandidateProfile>(
     initial ?? emptyProfile()
   )
+  const [currentProfileId, setCurrentProfileId] = useState(initialProfileId)
   const [dirty, setDirty] = useState(false)
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "fading">("idle")
   const [workErrors, setWorkErrors] = useState<Record<string, Record<string, boolean>>>({})
@@ -169,7 +170,7 @@ export function ProfileForm({ initial, profileId }: ProfileFormProps) {
     async (data: CandidateProfile) => {
       setSaveStatus("saving")
       try {
-        const method = profileId ? "PUT" : "POST"
+        const method = currentProfileId ? "PUT" : "POST"
         const res = await fetch("/api/profile", {
           method,
           headers: { "Content-Type": "application/json" },
@@ -178,6 +179,7 @@ export function ProfileForm({ initial, profileId }: ProfileFormProps) {
         if (!res.ok) throw new Error()
         const saved: CandidateProfile = await res.json()
         setProfile(saved)
+        setCurrentProfileId(saved.id)
         setDirty(false)
         setSaveStatus("saved")
         setTimeout(() => {
@@ -189,7 +191,7 @@ export function ProfileForm({ initial, profileId }: ProfileFormProps) {
         setSaveStatus("idle")
       }
     },
-    [profileId]
+    [currentProfileId]
   )
 
   function update(patch: Partial<CandidateProfile>) {

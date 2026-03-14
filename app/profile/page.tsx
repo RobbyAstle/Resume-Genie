@@ -1,9 +1,30 @@
-import { listProfiles } from "@/lib/storage"
-import { ProfileForm } from "@/components/ProfileForm"
+"use client"
 
-export default async function ProfilePage() {
-  const profiles = await listProfiles()
-  const profile = profiles[0] // Use first profile for now
+import { useEffect, useState } from "react"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { ProfileForm } from "@/components/ProfileForm"
+import type { CandidateProfile } from "@/types"
+
+export default function ProfilePage() {
+  const [profile, setProfile] = useState<CandidateProfile | undefined>()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((profiles: CandidateProfile[]) => setProfile(profiles[0]))
+      .catch(() => toast.error("Failed to load profile"))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full py-24">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
