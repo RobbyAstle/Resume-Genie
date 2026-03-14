@@ -5,8 +5,17 @@ const nextConfig: NextConfig = {
   output: "standalone",
   // Puppeteer and its Chromium bindings must run in Node.js, not in the
   // Edge runtime. Listing them here prevents Next.js from trying to bundle
-  // them for the browser / Edge.
-  serverExternalPackages: ["puppeteer-core", "debug"],
+  // them for the browser / Edge. All transitive deps of puppeteer-core must
+  // also be listed so they get copied into the standalone output.
+  serverExternalPackages: [
+    "puppeteer-core",
+    "@puppeteer/browsers",
+    "chromium-bidi",
+    "debug",
+    "devtools-protocol",
+    "webdriver-bidi-protocol",
+    "ws",
+  ],
 };
 
 export default nextConfig;
