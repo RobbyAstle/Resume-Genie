@@ -8,7 +8,13 @@ const nextConfig: NextConfig = {
   // entire dependency tree gets copied into the standalone output.
   serverExternalPackages: ["puppeteer-core"],
   outputFileTracingIncludes: {
-    "/api/pdf/*": ["./node_modules/puppeteer-core/**/*"],
+    "/api/pdf/*": [
+      // pnpm stores each package and its deps in isolated directories under
+      // .pnpm/. A single puppeteer-core glob won't capture transitive deps
+      // like @puppeteer/browsers, progress, ws, etc. Include everything under
+      // .pnpm/ so the entire dependency tree is available at runtime.
+      "./node_modules/.pnpm/**/*",
+    ],
   },
 };
 
