@@ -1,3 +1,4 @@
+import "server-only"
 import puppeteer, { type Browser } from "puppeteer-core"
 import { PDF_TIMEOUT_MS } from "./config"
 

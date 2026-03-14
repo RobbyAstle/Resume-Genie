@@ -16,4 +16,4 @@ echo ""
 (sleep 3 && open "http://localhost:3000") &
 
 # Start the server (blocks until closed)
-"$DIR/node/bin/node" "$DIR/server.js"
+"$DIR/node/bin/node" "$DIR/node_modules/next/dist/bin/next" start --port "$PORT" --hostname "$HOSTNAME"

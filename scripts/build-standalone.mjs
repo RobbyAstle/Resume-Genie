@@ -4,8 +4,8 @@
  * build-standalone.mjs
  *
  * Produces a self-contained ZIP that bundles:
- *   - Next.js standalone server
- *   - Static assets & public/ files
+ *   - Next.js build output (.next/) with node_modules/
+ *   - Public assets, data directory, config files
  *   - Node.js runtime binary
  *   - Chromium binary (for Puppeteer PDF generation)
  *   - Platform-specific launcher script
@@ -112,12 +112,12 @@ function exec(cmd, opts = {}) {
 // Step 1: Build Next.js
 // ---------------------------------------------------------------------------
 
-console.log("Step 1: Building Next.js (standalone output)...")
+console.log("Step 1: Building Next.js...")
 exec("npx next build")
 
-const standaloneDir = path.join(ROOT, ".next", "standalone")
-if (!fs.existsSync(standaloneDir)) {
-  throw new Error(".next/standalone/ not found. Ensure next.config.ts has output: 'standalone'")
+const nextDir = path.join(ROOT, ".next")
+if (!fs.existsSync(nextDir)) {
+  throw new Error(".next/ not found. Build failed.")
 }
 
 // ---------------------------------------------------------------------------
@@ -128,15 +128,12 @@ console.log("\nStep 2: Preparing staging directory...")
 await rmrf(STAGE)
 await fsp.mkdir(STAGE, { recursive: true })
 
-// Copy standalone server files
-await copyDir(standaloneDir, STAGE)
+// Copy .next/ build output
+await copyDir(nextDir, path.join(STAGE, ".next"))
 
-// Copy static assets (Next.js standalone does not include these)
-const staticSrc = path.join(ROOT, ".next", "static")
-const staticDest = path.join(STAGE, ".next", "static")
-if (fs.existsSync(staticSrc)) {
-  await copyDir(staticSrc, staticDest)
-}
+// Copy node_modules/ (dereference pnpm symlinks so the package is self-contained)
+console.log("  Copying node_modules (dereferencing symlinks)...")
+await copyDir(path.join(ROOT, "node_modules"), path.join(STAGE, "node_modules"))
 
 // Copy public/ directory
 const publicSrc = path.join(ROOT, "public")
@@ -145,28 +142,19 @@ if (fs.existsSync(publicSrc)) {
   await copyDir(publicSrc, publicDest)
 }
 
-// Patch: pnpm's symlink structure can cause Next.js standalone to miss
-// peer dependencies like styled-jsx. Copy them from the pnpm store if missing.
-const peerDeps = ["styled-jsx", "@swc/helpers", "@next/env"]
-const pnpmStore = path.join(ROOT, "node_modules", ".pnpm")
-for (const dep of peerDeps) {
-  const destPkg = path.join(STAGE, "node_modules", dep)
-  if (!fs.existsSync(destPkg)) {
-    // pnpm encodes scoped package names with "+" instead of "/" in store dirs
-    // e.g. "@swc/helpers" → "@swc+helpers@0.5.15"
-    const storePrefix = dep.replace("/", "+")
-    const storeEntries = fs.readdirSync(pnpmStore).filter((d) => d.startsWith(storePrefix + "@"))
-    if (storeEntries.length > 0) {
-      const src = path.join(pnpmStore, storeEntries[0], "node_modules", dep)
-      if (fs.existsSync(src)) {
-        await copyDir(src, destPkg)
-        console.log(`  ✓ Patched missing peer dep: ${dep}`)
-      }
-    }
-  }
+// Copy package.json (needed by next start)
+await fsp.copyFile(path.join(ROOT, "package.json"), path.join(STAGE, "package.json"))
+
+// Copy prompts.json (loaded at runtime by AI routes)
+await fsp.copyFile(path.join(ROOT, "prompts.json"), path.join(STAGE, "prompts.json"))
+
+// Copy data/ directory (runtime data — sessions, profiles, API keys)
+const dataSrc = path.join(ROOT, "data")
+if (fs.existsSync(dataSrc)) {
+  await copyDir(dataSrc, path.join(STAGE, "data"))
 }
 
-console.log("  ✓ Standalone files staged")
+console.log("  ✓ App files staged")
 
 // ---------------------------------------------------------------------------
 // Step 3: Download Node.js binary

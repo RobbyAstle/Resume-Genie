@@ -1,3 +1,4 @@
+import "server-only"
 import { NextRequest, NextResponse } from "next/server"
 import { getSettings } from "./storage"
 import { APIError as AnthropicAPIError } from "@anthropic-ai/sdk/core/error.js"

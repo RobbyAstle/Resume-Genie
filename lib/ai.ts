@@ -1,3 +1,4 @@
+import "server-only"
 import OpenAI from "openai"
 import { zodResponseFormat } from "openai/helpers/zod"
 import Anthropic from "@anthropic-ai/sdk"
