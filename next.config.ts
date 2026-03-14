@@ -3,19 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Produce a self-contained server in .next/standalone/ for distribution
   output: "standalone",
-  // Puppeteer and its Chromium bindings must run in Node.js, not in the
-  // Edge runtime. Listing them here prevents Next.js from trying to bundle
-  // them for the browser / Edge. All transitive deps of puppeteer-core must
-  // also be listed so they get copied into the standalone output.
-  serverExternalPackages: [
-    "puppeteer-core",
-    "@puppeteer/browsers",
-    "chromium-bidi",
-    "debug",
-    "devtools-protocol",
-    "webdriver-bidi-protocol",
-    "ws",
-  ],
+  // Puppeteer must run in Node.js, not Edge. Mark it as external so Next.js
+  // doesn't try to bundle it, and use outputFileTracingIncludes to ensure the
+  // entire dependency tree gets copied into the standalone output.
+  serverExternalPackages: ["puppeteer-core"],
+  outputFileTracingIncludes: {
+    "/api/pdf/*": ["./node_modules/puppeteer-core/**/*"],
+  },
 };
 
 export default nextConfig;
