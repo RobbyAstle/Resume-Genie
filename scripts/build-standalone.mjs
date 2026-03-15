@@ -145,27 +145,27 @@ await fsp.mkdir(STAGE, { recursive: true })
 // Copy .next/ build output
 await copyDir(nextDir, path.join(STAGE, ".next"))
 
-// Copy package.json, lockfile, and .npmrc first (needed by pnpm install)
+// Copy package.json and lockfile (needed by pnpm install)
 await fsp.copyFile(path.join(ROOT, "package.json"), path.join(STAGE, "package.json"))
 await fsp.copyFile(path.join(ROOT, "pnpm-lock.yaml"), path.join(STAGE, "pnpm-lock.yaml"))
-const npmrcSrc = path.join(ROOT, ".npmrc")
-if (fs.existsSync(npmrcSrc)) {
-  await fsp.copyFile(npmrcSrc, path.join(STAGE, ".npmrc"))
-}
+
+// Write a staging .npmrc that uses hoisted node_modules (flat layout like npm).
+// This avoids pnpm's symlink-based virtual store, so packages like styled-jsx
+// that next expects to resolve from the top-level context are found correctly.
+await fsp.writeFile(path.join(STAGE, ".npmrc"), [
+  "package-manager-strict=false",
+  "node-linker=hoisted",
+  "",
+].join("\n"))
 
 // Install only production dependencies (excludes TypeScript, ESLint, Tailwind, etc.)
+// The hoisted linker produces a flat node_modules with no symlinks to dereference.
 console.log("  Installing production dependencies...")
 exec(`${PNPM} install --prod --frozen-lockfile`, { cwd: STAGE })
-// Dereference pnpm symlinks so the package is fully self-contained
-console.log("  Dereferencing pnpm symlinks...")
-const stagedModules = path.join(STAGE, "node_modules")
-const tmpModules = path.join(STAGE, "node_modules_tmp")
-await copyDir(stagedModules, tmpModules)
-await rmrf(stagedModules)
-await fsp.rename(tmpModules, stagedModules)
+
 // Clean up pnpm artifacts (not needed at runtime)
 await fsp.rm(path.join(STAGE, "pnpm-lock.yaml"))
-await fsp.rm(path.join(STAGE, ".npmrc"), { force: true })
+await fsp.rm(path.join(STAGE, ".npmrc"))
 
 // Copy public/ directory
 const publicSrc = path.join(ROOT, "public")
