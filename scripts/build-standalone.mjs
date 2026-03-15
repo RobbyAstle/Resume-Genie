@@ -243,13 +243,28 @@ if (targetOS === "win32") {
   exec(
     `"${browsersCli}" install chrome@${CHROME_VERSION} --platform win64 --install-dir "${chromeDir}"`,
   )
-  // Find the chrome.exe and move it to chrome/ root for simpler paths
-  // @puppeteer/browsers installs to: chrome/<platform>-<version>/chrome-win64/chrome.exe
+  // Flatten Chrome's nested install structure to chrome/ root for simpler paths.
+  // @puppeteer/browsers installs to: chrome/win64-<version>/chrome-win64/chrome.exe
   const installed = findFileRecursive(chromeDir, "chrome.exe")
   if (installed) {
     const installedDir = path.dirname(installed)
-    // Move all files from the nested directory up to chromeDir
-    await moveContentsUp(installedDir, chromeDir)
+    // Copy chrome files to top-level chrome/ directory
+    for (const entry of await fsp.readdir(installedDir, { withFileTypes: true })) {
+      const src = path.join(installedDir, entry.name)
+      const dest = path.join(chromeDir, entry.name)
+      if (entry.isDirectory()) {
+        await copyDir(src, dest)
+      } else {
+        await fsp.copyFile(src, dest)
+      }
+    }
+    // Remove the nested install directories (e.g. win64-131.0.6778.264/)
+    for (const entry of await fsp.readdir(chromeDir, { withFileTypes: true })) {
+      const full = path.join(chromeDir, entry.name)
+      if (entry.isDirectory() && entry.name.startsWith("win64-")) {
+        await rmrf(full)
+      }
+    }
   }
 
 } else if (targetOS === "darwin") {
@@ -343,22 +358,4 @@ function findFileRecursive(dir, name) {
   return null
 }
 
-async function moveContentsUp(srcDir, destDir) {
-  // Move all files from srcDir to destDir, then clean up intermediate dirs
-  for (const entry of await fsp.readdir(srcDir, { withFileTypes: true })) {
-    const src = path.join(srcDir, entry.name)
-    const dest = path.join(destDir, entry.name)
-    if (!fs.existsSync(dest)) {
-      await fsp.rename(src, dest)
-    }
-  }
-  // Clean up empty intermediate directories
-  let current = srcDir
-  while (current !== destDir) {
-    const entries = await fsp.readdir(current)
-    if (entries.length === 0) {
-      await fsp.rmdir(current)
-    }
-    current = path.dirname(current)
-  }
-}
+
