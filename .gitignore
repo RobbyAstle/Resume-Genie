@@ -48,3 +48,6 @@ next-env.d.ts
 
 # generated PDFs
 *.pdf
+
+# migration planning
+requirements.md
