@@ -305,9 +305,22 @@ const zipPath = path.join(DIST, zipName)
 if (fs.existsSync(zipPath)) await fsp.rm(zipPath)
 
 if (targetOS === "win32") {
-  exec(
-    `powershell -Command "Compress-Archive -Path '${STAGE}/*' -DestinationPath '${zipPath}'"`,
-  )
+  // Use 7-Zip if available (no size limit; pre-installed on GitHub Actions runners).
+  // Fall back to PowerShell Compress-Archive, which has a 2GB limit.
+  let use7z = false
+  try {
+    execSync("7z", { stdio: "ignore" })
+    use7z = true
+  } catch {}
+
+  if (use7z) {
+    exec(`7z a -tzip "${zipPath}" "${STAGE}/*"`)
+  } else {
+    console.warn("  ⚠ 7-Zip not found, falling back to Compress-Archive (2GB limit)")
+    exec(
+      `powershell -Command "Compress-Archive -Path '${STAGE}/*' -DestinationPath '${zipPath}'"`,
+    )
+  }
 } else {
   exec(`cd "${DIST}" && zip -r "${zipName}" "ResumeGenie-${targetOS}-${targetArch}"`)
 }
