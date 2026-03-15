@@ -240,48 +240,82 @@ await fsp.mkdir(chromeDir, { recursive: true })
 const browsersCli = path.join(ROOT, "node_modules", ".bin", "browsers")
 
 if (targetOS === "win32") {
+  // Download Chrome for Testing into a temp directory first, then flatten into chromeDir.
+  // @puppeteer/browsers has a bug where --install-dir is sometimes ignored on Windows,
+  // so we download into a known temp location and copy the result ourselves.
+  const chromeTmp = path.join(DIST, "chrome-tmp")
+  await rmrf(chromeTmp)
+  await fsp.mkdir(chromeTmp, { recursive: true })
   exec(
-    `"${browsersCli}" install chrome@${CHROME_VERSION} --platform win64 --install-dir "${chromeDir}"`,
+    `"${browsersCli}" install chrome@${CHROME_VERSION} --platform win64 --install-dir "${chromeTmp}"`,
   )
-  // Flatten Chrome's nested install structure to chrome/ root for simpler paths.
-  // @puppeteer/browsers installs to: chrome/win64-<version>/chrome-win64/chrome.exe
-  const installed = findFileRecursive(chromeDir, "chrome.exe")
-  if (installed) {
-    const installedDir = path.dirname(installed)
-    // Copy chrome files to top-level chrome/ directory
-    for (const entry of await fsp.readdir(installedDir, { withFileTypes: true })) {
-      const src = path.join(installedDir, entry.name)
-      const dest = path.join(chromeDir, entry.name)
-      if (entry.isDirectory()) {
-        await copyDir(src, dest)
-      } else {
-        await fsp.copyFile(src, dest)
-      }
-    }
-    // Remove the nested install directories (e.g. win64-131.0.6778.264/)
-    for (const entry of await fsp.readdir(chromeDir, { withFileTypes: true })) {
-      const full = path.join(chromeDir, entry.name)
-      if (entry.isDirectory() && entry.name.startsWith("win64-")) {
-        await rmrf(full)
-      }
+
+  // Also check ROOT/chrome in case the CLI ignored --install-dir (known bug)
+  let installed = findFileRecursive(chromeTmp, "chrome.exe")
+  const rootChromeFallback = path.join(ROOT, "chrome")
+  if (!installed && fs.existsSync(rootChromeFallback)) {
+    console.log("  chrome.exe not in temp dir, checking ROOT/chrome fallback...")
+    installed = findFileRecursive(rootChromeFallback, "chrome.exe")
+  }
+
+  if (!installed) {
+    const tmpListing = fs.readdirSync(chromeTmp, { recursive: true }).slice(0, 30)
+    console.error("  Contents of chrome-tmp:", tmpListing)
+    throw new Error("chrome.exe not found after @puppeteer/browsers install")
+  }
+
+  console.log("  Found chrome.exe at:", installed)
+  const installedDir = path.dirname(installed)
+
+  // Copy chrome files to the staging chrome/ directory
+  for (const entry of await fsp.readdir(installedDir, { withFileTypes: true })) {
+    const src = path.join(installedDir, entry.name)
+    const dest = path.join(chromeDir, entry.name)
+    if (entry.isDirectory()) {
+      await copyDir(src, dest)
+    } else {
+      await fsp.copyFile(src, dest)
     }
   }
 
+  // Clean up temp download and any ROOT/chrome leftover
+  await rmrf(chromeTmp)
+  await rmrf(rootChromeFallback)
+
 } else if (targetOS === "darwin") {
   const chromePlatform = targetArch === "arm64" ? "mac_arm" : "mac"
+  const chromeTmp = path.join(DIST, "chrome-tmp")
+  await rmrf(chromeTmp)
+  await fsp.mkdir(chromeTmp, { recursive: true })
   exec(
-    `"${browsersCli}" install chrome@${CHROME_VERSION} --platform ${chromePlatform} --install-dir "${chromeDir}"`,
+    `"${browsersCli}" install chrome@${CHROME_VERSION} --platform ${chromePlatform} --install-dir "${chromeTmp}"`,
   )
-  // On Mac, the binary is inside a .app bundle
-  // Find "Google Chrome for Testing.app" or similar
-  const installed = findFileRecursive(chromeDir, "Google Chrome for Testing")
-  if (installed) {
-    // The launcher script expects chrome/chrome, so create a symlink
-    const link = path.join(chromeDir, "chrome")
-    if (!fs.existsSync(link)) {
-      await fsp.symlink(installed, link)
-    }
+
+  // Find the .app bundle (check temp dir first, then ROOT/chrome fallback)
+  let installed = findFileRecursive(chromeTmp, "Google Chrome for Testing")
+  const rootChromeFallback = path.join(ROOT, "chrome")
+  if (!installed && fs.existsSync(rootChromeFallback)) {
+    installed = findFileRecursive(rootChromeFallback, "Google Chrome for Testing")
   }
+
+  if (!installed) {
+    const tmpListing = fs.readdirSync(chromeTmp, { recursive: true }).slice(0, 30)
+    console.error("  Contents of chrome-tmp:", tmpListing)
+    throw new Error("Google Chrome for Testing not found after @puppeteer/browsers install")
+  }
+
+  console.log("  Found Chrome at:", installed)
+  // Copy the .app bundle into chromeDir and create the symlink
+  const appDest = path.join(chromeDir, path.basename(installed))
+  await copyDir(installed, appDest)
+  const link = path.join(chromeDir, "chrome")
+  if (!fs.existsSync(link)) {
+    await fsp.symlink(appDest, link)
+  }
+
+  // Clean up
+  await rmrf(chromeTmp)
+  await rmrf(rootChromeFallback)
 }
 
 console.log("  ✓ Chromium downloaded")
